@@ -1,6 +1,8 @@
-# Obtain certs, user and group for final stage
-FROM busybox:1.31.1 as authority
-RUN groupadd -r appuser && useradd -r -s /bin/false -g appuser appuser
+# Obtain certs for final stage
+FROM alpine:3.11.5 as authority
+RUN mkdir /user && \
+    echo 'appuser:x:1000:1000:appuser:/:' > /user/passwd && \
+    echo 'appgroup:x:1000:' > /user/group
 RUN apk --no-cache add ca-certificates
 
 # Build app binary for final stage
@@ -12,9 +14,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o /main .
 
 # Final stage
 FROM scratch
-COPY --from=authority /etc/group /etc/passwd /etc/
+COPY --from=authority /user/group /user/passwd /etc/
 COPY --from=authority /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /main ./
-USER appuser:appuser
+USER appuser:appgroup
 EXPOSE 8080
 ENTRYPOINT ["./main"]
