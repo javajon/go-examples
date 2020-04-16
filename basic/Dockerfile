@@ -1,4 +1,4 @@
-# Obtain certs for final stage
+# Obtain certs, user and group for final stage
 FROM alpine:3.11.5 as authority
 RUN groupadd -r appuser && useradd -r -s /bin/false -g appuser appuser
 RUN apk --no-cache add ca-certificates
