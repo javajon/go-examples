@@ -1,4 +1,4 @@
-FROM golang:1.16.6-buster
+FROM golang:1.18.1-buster
 WORKDIR /app
 COPY . .
 RUN go mod init main
