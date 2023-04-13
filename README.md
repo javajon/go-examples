@@ -47,5 +47,3 @@ The result would be:
 ```
 
 The demonstration app simply makes this call to discover the somewhat predictable drizzly conditions in London.
-
-TODO - example
