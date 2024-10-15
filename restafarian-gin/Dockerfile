@@ -1,12 +1,12 @@
 # Obtain certs for final stage
-FROM alpine:3.16  as authority
+FROM alpine:3.19 as authority
 RUN mkdir /user && \
     echo 'appuser:x:1000:1000:appuser:/:' > /user/passwd && \
     echo 'appgroup:x:1000:' > /user/group
 RUN apk --no-cache add ca-certificates
 
 # Build app binary for final stage
-FROM golang:1.18.2-alpine3.16 AS builder
+FROM golang:1.22-alpine3.19 AS builder
 WORKDIR /app
 COPY . .
 RUN go mod download
