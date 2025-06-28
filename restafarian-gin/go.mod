@@ -1,6 +1,6 @@
 module github.com/javajon/go-examples/restafarian-gin
 
-go 1.22
+go 1.24
 
 require github.com/gin-gonic/gin v1.10.0
 
