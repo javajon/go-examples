@@ -43,6 +43,11 @@ Newer ones exist and are not usable here yet: gin v1.11 needs Go 1.23 and v1.12 
 1.25, gjson v1.19 needs 1.23. If the lab image moves to a newer Go, these can move with
 it.
 
+The lab machine runs **Go 1.22.2**, confirmed. Every step that says `go run` uses it -
+`hello`, `basic` and `restafarian-gin` are each run locally before being containerized,
+which is the point of the lab - so all three modules have to build there. The container
+builds are independent and use `golang:1.25-alpine3.22`.
+
 ## Running locally
 
 ```
