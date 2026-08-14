@@ -15,38 +15,40 @@ part of the subscription.
 | `basic` | a single-file app calling a public API, built multi-stage into `scratch` |
 | `restafarian-gin` | a REST microservice with CRUD handlers, using the Gin framework |
 
-## Go version, and why the `go` directive is what it is
+## Go version
 
-The `go` line in each `go.mod` is a **minimum**, not a pin: it says the oldest toolchain
-that can build the module. It is deliberately kept at `1.22`, because the lab runs
-`go run` directly on the lab machine and that machine's Go is what has to satisfy it.
-Raising the directive above the lab's Go makes the toolchain try to download a newer one,
-which the lab environment cannot do:
+Every module declares `go 1.25`, and the dependencies below need it. The lab installs a
+current Go in step 2 rather than relying on the lab image's, which is older:
 
 ```
-go: downloading go1.24 (linux/amd64)
-go: download go1.24 for linux/amd64: toolchain not available
+curl -sSL https://go.dev/dl/go1.26.6.linux-amd64.tar.gz -o /tmp/go.tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xzf /tmp/go.tar.gz
+export PATH=/usr/local/go/bin:$PATH
 ```
 
-That is not a reason to hold the dependencies back. The Dockerfiles build with
-`golang:1.25-alpine3.22`, because a newer toolchain builds an older floor happily. Only
-the directive has to suit the lab.
+That version is pinned deliberately. Installing "the latest" of anything makes a lab
+irreproducible - two learners on different days get different software, and a failure
+cannot be distinguished from an upstream change. Bump it on purpose, then re-run the
+lab's test to confirm nothing broke.
 
-Dependencies are held to versions that work at that floor:
+Note the lab image's own Go cannot download a newer toolchain automatically: it reports
+`toolchain not available`, so `GOTOOLCHAIN=auto` is not a substitute for installing one.
 
-| dependency | version | needs Go |
+## Dependencies
+
+All pinned, all current as of this writing:
+
+| dependency | version | note |
 | --- | --- | --- |
-| `gin-gonic/gin` | v1.10.1 | 1.20 |
-| `tidwall/gjson` | v1.18.0 | 1.12 |
+| `gin-gonic/gin` | v1.12.0 | needs Go 1.25 |
+| `tidwall/gjson` | v1.19.0 | needs Go 1.23 |
+| `quic-go/quic-go` | v0.59.1 | indirect, via gin's HTTP/3 support |
 
-Newer ones exist and are not usable here yet: gin v1.11 needs Go 1.23 and v1.12 needs
-1.25, gjson v1.19 needs 1.23. If the lab image moves to a newer Go, these can move with
-it.
+`quic-go` is pinned above what gin resolves to on its own. gin v1.12 brought in HTTP/3,
+and the version it selects, v0.59.0, carries a reachable advisory (GO-2026-5676) that
+v0.59.1 fixes. `govulncheck ./...` reports no affected code paths with these versions.
 
-The lab machine runs **Go 1.22.2**, confirmed. Every step that says `go run` uses it -
-`hello`, `basic` and `restafarian-gin` are each run locally before being containerized,
-which is the point of the lab - so all three modules have to build there. The container
-builds are independent and use `golang:1.25-alpine3.22`.
+Build images use `golang:1.26-alpine3.22`.
 
 ## Running locally
 
