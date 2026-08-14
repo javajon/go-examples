@@ -1,8 +1,8 @@
 module github.com/javajon/go-examples/restafarian-gin
 
-go 1.24
+go 1.22
 
-require github.com/gin-gonic/gin v1.10.0
+require github.com/gin-gonic/gin v1.10.1
 
 require (
 	github.com/bytedance/sonic v1.12.3 // indirect
